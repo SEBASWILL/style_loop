@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outfit AI ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF8F4;
+      --warm-white: #FFFDF9;
+      --ink: #1A1714;
+      --ink-muted: #6B6460;
+      --ink-faint: #B5B0AC;
+      --accent: #C8855A;
+      --accent-light: #F2E8DF;
+      --accent-dark: #8B4D25;
+      --border: rgba(26,23,20,0.12);
+      --border-strong: rgba(26,23,20,0.25);
+      --success: #3D7A5A;
+      --success-bg: #EBF5EF;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--ink);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--ink);
+    }
+
+    .logo-text span {
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-left: auto;
+      letter-spacing: 0.03em;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .panel-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title .num {
+      width: 26px; height: 26px;
+      background: var(--ink);
+      color: white;
+      border-radius: 50%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Drop zone */
+    .dropzone {
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      background: var(--cream);
+      margin-bottom: 1rem;
+    }
+
+    .dropzone:hover, .dropzone.drag-over {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .dropzone input[type="file"] { display: none; }
+
+    .dropzone-icon { font-size: 36px; margin-bottom: 8px; }
+
+    .dropzone p {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+
+    .dropzone strong { color: var(--accent); font-weight: 600; }
+
+    /* Preview grid */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .preview-item {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      background: var(--cream);
+    }
+
+    .preview-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-item .remove-btn {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      background: rgba(26,23,20,0.75);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+
+    .image-count {
+      font-size: 12px;
+      color: var(--ink-muted);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    /* Params */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], select, textarea {
+      width: 100%;
+      background: var(--cream);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border-strong);
+      cursor: pointer;
+      background: var(--cream);
+      color: var(--ink-muted);
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .chip.active {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+
+    /* Button */
+    .btn-primary {
+      width: 100%;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary:hover { background: #2D2A27; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; }
+
+    /* Result */
+    #result-panel {
+      display: none;
+      grid-column: 1 / -1;
+    }
+
+    #result-panel.visible { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .badge-success {
+      font-size: 11px;
+      background: var(--success-bg);
+      color: var(--success);
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .outfit-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .meta-info {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--ink-muted);
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    /* Loading */
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .loading-state.visible { display: block; }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-state p {
+      color: var(--ink-muted);
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    /* Error */
+    .error-box {
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      font-size: 13px;
+      color: #B91C1C;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .error-box.visible { display: block; }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--ink);
+      transition: background 0.15s;
+    }
+    .btn-outline:hover { background: var(--cream); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">🪄</div>
+  <div class="logo-text">Outfit <span>AI</span></div>
+  <p class="tagline">Powered by GPT-4o Vision</p>
+</header>
+
+<main>
+
+  <!-- Panel 1: Fotos -->
+  <div class="panel">
+    <h2 class="panel-title">
+      <span class="num">1</span>
+      Sube tu ropa
+    </h2>
+
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept="image/*" multiple />
+      <div class="dropzone-icon">👗</div>
+      <p>Arrastra tus fotos aquí o<br><strong>haz clic para seleccionar</strong></p>
+      <p style="font-size: 11px; margin-top: 6px; color: var(--ink-faint);">JPG, PNG, WEBP · Máx. 15 imágenes</p>
+    </div>
+
+    <div class="preview-grid" id="previewGrid"></div>
+    <p class="image-count" id="imageCount" style="display:none;"></p>
+  </div>
+
+  <!-- Panel 2: Parámetros -->
+  <div class="panel">
+    <h2 class="panel-title">
+      <span class="num">2</span>
+      Define tu outfit
+    </h2>
+
+    <div class="form-group">
+      <label>Ocasión</label>
+      <div class="chips" id="chips-ocasion">
+        <span class="chip" data-field="ocasion" data-value="Casual del día a día">Casual</span>
+        <span class="chip" data-field="ocasion" data-value="Trabajo / Oficina">Trabajo</span>
+        <span class="chip" data-field="ocasion" data-value="Salida a cenar">Cena</span>
+        <span class="chip" data-field="ocasion" data-value="Fiesta o evento">Fiesta</span>
+        <span class="chip" data-field="ocasion" data-value="Deporte o ejercicio">Deporte</span>
+        <span class="chip" data-field="ocasion" data-value="Viaje">Viaje</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Estilo buscado</label>
+      <div class="chips" id="chips-estilo">
+        <span class="chip" data-field="estilo" data-value="Minimalista y sobrio">Minimalista</span>
+        <span class="chip" data-field="estilo" data-value="Colorido y llamativo">Colorido</span>
+        <span class="chip" data-field="estilo" data-value="Elegante y refinado">Elegante</span>
+        <span class="chip" data-field="estilo" data-value="Streetwear urbano">Streetwear</span>
+        <span class="chip" data-field="estilo" data-value="Boho / Romántico">Boho</span>
+        <span class="chip" data-field="estilo" data-value="Clásico atemporal">Clásico</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Clima</label>
+      <div class="chips" id="chips-clima">
+        <span class="chip" data-field="clima" data-value="Mucho calor (30°C+)">Mucho calor</span>
+        <span class="chip" data-field="clima" data-value="Templado (18-25°C)">Templado</span>
+        <span class="chip" data-field="clima" data-value="Frío (menos de 15°C)">Frío</span>
+        <span class="chip" data-field="clima" data-value="Con lluvia o viento">Lluvia</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Colores a evitar</label>
+      <input type="text" id="colores_evitar" placeholder="Ej: rojo, naranja, colores muy vivos..." />
+    </div>
+
+    <div class="form-group">
+      <label>Notas adicionales</label>
+      <textarea id="notas" placeholder="Ej: Quiero verme alta, nada muy apretado, tengo una boda en la playa..."></textarea>
+    </div>
+
+    <button class="btn-primary" id="btnGenerar" disabled>
+      ✨ Armar mi outfit
+    </button>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <!-- Panel resultado -->
+  <div class="panel" id="result-panel">
+    <div class="result-header">
+      <h2 class="panel-title" style="margin-bottom:0">
+        <span class="num">3</span>
+        Tu outfit de hoy
+      </h2>
+      <div style="display:flex; gap:8px; align-items:center">
+        <span class="badge-success">✓ Listo</span>
+        <button class="btn-outline" id="btnReset">Nuevo outfit</button>
+      </div>
+    </div>
+
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <p>Analizando tu ropa y armando el outfit perfecto...</p>
+    </div>
+
+    <p class="outfit-text" id="outfitText"></p>
+
+    <div class="meta-info" id="metaInfo" style="display:none">
+      <span>🖼️ <strong id="prendasCount"></strong> prendas analizadas</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const previewGrid = document.getElementById('previewGrid');
+  const imageCount = document.getElementById('imageCount');
+  const btnGenerar = document.getElementById('btnGenerar');
+  const btnReset = document.getElementById('btnReset');
+  const errorBox = document.getElementById('errorBox');
+  const resultPanel = document.getElementById('result-panel');
+  const loadingState = document.getElementById('loadingState');
+  const outfitText = document.getElementById('outfitText');
+  const metaInfo = document.getElementById('metaInfo');
+  const prendasCount = document.getElementById('prendasCount');
+
+  let selectedFiles = [];
+  const selectedChips = { ocasion: '', estilo: '', clima: '' };
+
+  // Dropzone events
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+  fileInput.addEventListener('change', () => addFiles(Array.from(fileInput.files)));
+
+  function addFiles(files) {
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    const remaining = 15 - selectedFiles.length;
+    const toAdd = imageFiles.slice(0, remaining);
+    selectedFiles = [...selectedFiles, ...toAdd];
+    renderPreviews();
+    updateBtn();
+  }
+
+  function renderPreviews() {
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, i) => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      const rm = document.createElement('button');
+      rm.className = 'remove-btn';
+      rm.innerHTML = '×';
+      rm.onclick = () => { selectedFiles.splice(i, 1); renderPreviews(); updateBtn(); };
+      item.appendChild(img);
+      item.appendChild(rm);
+      previewGrid.appendChild(item);
+    });
+    if (selectedFiles.length > 0) {
+      imageCount.style.display = 'block';
+      imageCount.textContent = `${selectedFiles.length} prenda${selectedFiles.length > 1 ? 's' : ''} lista${selectedFiles.length > 1 ? 's' : ''}`;
+    } else {
+      imageCount.style.display = 'none';
+    }
+  }
+
+  function updateBtn() {
+    btnGenerar.disabled = selectedFiles.length === 0;
+  }
+
+  // Chips
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const field = chip.dataset.field;
+      document.querySelectorAll(`.chip[data-field="${field}"]`).forEach(c => c.classList.remove('active'));
+      chip.classList.toggle('active');
+      selectedChips[field] = chip.classList.contains('active') ? chip.dataset.value : '';
+    });
+  });
+
+  // Generar
+  btnGenerar.addEventListener('click', async () => {
+    if (selectedFiles.length === 0) return;
+
+    errorBox.classList.remove('visible');
+    errorBox.textContent = '';
+    resultPanel.classList.add('visible');
+    loadingState.classList.add('visible');
+    outfitText.textContent = '';
+    metaInfo.style.display = 'none';
+    btnGenerar.disabled = true;
+    btnGenerar.textContent = '⏳ Analizando...';
+
+    resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const formData = new FormData();
+    selectedFiles.forEach(f => formData.append('imagenes', f));
+    formData.append('ocasion', selectedChips.ocasion);
+    formData.append('estilo', selectedChips.estilo);
+    formData.append('clima', selectedChips.clima);
+    formData.append('colores_evitar', document.getElementById('colores_evitar').value);
+    formData.append('notas', document.getElementById('notas').value);
+
+    try {
+      const res = await fetch('/api/outfit', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      loadingState.classList.remove('visible');
+
+      if (data.error) {
+        errorBox.textContent = '❌ ' + data.error;
+        errorBox.classList.add('visible');
+      } else {
+        outfitText.textContent = data.outfit;
+        prendasCount.textContent = data.prendas_analizadas;
+        metaInfo.style.display = 'flex';
+      }
+    } catch (err) {
+      loadingState.classList.remove('visible');
+      errorBox.textContent = '❌ Error de conexión. ¿Está corriendo el servidor Flask?';
+      errorBox.classList.add('visible');
+    }
+
+    btnGenerar.disabled = false;
+    btnGenerar.textContent = '✨ Armar mi outfit';
+  });
+
+  // Reset
+  btnReset.addEventListener('click', () => {
+    resultPanel.classList.remove('visible');
+    outfitText.textContent = '';
+    errorBox.classList.remove('visible');
+  });
+</script>
+
+</body>
+</html>
